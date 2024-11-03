@@ -1,0 +1,8 @@
+pywin32 # Must also be installed globally: python -m pip install --upgrade pywin32
+
+pywinusb==0.4.2 
+requests==2.32.3
+pause==0.3
+
+pyinstaller==6.11.0
+colorama==0.4.6
