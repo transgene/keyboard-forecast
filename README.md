@@ -9,5 +9,6 @@
 4. Build the executable: `python .\package.py --clean`
 5. Copy `keebforecast.exe` to the installation folder. Any folder will do - e.g. `%LocalAppData%\Programs\keyboard-forecast`
 6. Install the service (as admin):
+    - `cd %LocalAppData%\Programs\keyboard-forecast`
     - `.\keebforecast.exe --startup delayed install`
     - `.\keebforecast.exe start`
