@@ -10,6 +10,6 @@ def info(msg: str):
 def error(msg: str):
     servicemanager.LogMsg(
         servicemanager.EVENTLOG_ERROR_TYPE, 
-        0xF000, #  generic message
+        0xF000,
         (msg, "")
     )

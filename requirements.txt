@@ -1,4 +1,4 @@
-pywin32 # Must also be installed globally: python -m pip install --upgrade pywin32
+pywin32 # Must also be installed globally
 
 pywinusb==0.4.2 
 requests==2.32.3

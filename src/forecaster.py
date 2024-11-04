@@ -7,6 +7,7 @@ import pause
 import requests
 from forelogger import info, error
 
+BACKLIGHT_IS_ON = None
 
 def check_weather(cur_loc: dict, api_key: str):
     resp = requests.get(f"https://api.weatherapi.com/v1/current.json?key={api_key}&q={cur_loc['lat']},{cur_loc['lng']}&aqi=no")
@@ -18,9 +19,9 @@ def check_weather(cur_loc: dict, api_key: str):
     condition = weather["condition"]
     info(f"Cloud percentage: {cloud_pct}, condition: {condition['text']} ({condition['code']})")
     if cloud_pct >= 70:
-        # TODO send hid message
-        pass
-
+        toggle_backlight(True)
+    else:
+        toggle_backlight(False)
 
 
 def main():
@@ -68,6 +69,7 @@ def main():
         sunrise = datetime.strptime(daytime["sunrise"], "%Y-%m-%dT%H:%M:%S%z") # TODO get the next sunrise (today or tomorrow's)
         sunrise = sunrise.astimezone(get_timezone(sunrise))
         sunset = datetime.strptime(daytime["civil_twilight_evening_end"], "%Y-%m-%dT%H:%M:%S%z") 
+        # sunset = datetime.strptime(daytime["sunset"], "%Y-%m-%dT%H:%M:%S%z") 
         sunset = sunset.astimezone(get_timezone(sunset))
         now = get_now()
         if now < sunrise:
@@ -75,6 +77,7 @@ def main():
             pause.until(sunrise)
             info("Woke up")
         elif now > sunset:
+            toggle_backlight(True)
             midnight = now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
             info(f"Too late! Waiting until {midnight} to reset the day")
             pause.until(midnight)
@@ -92,13 +95,10 @@ def main():
         api_key = os.getenv("WEATHER_API_KEY")
         next_run = get_now()
         while next_run <= sunset:
-        # while next_run >= sunset:   
             check_weather(current_location, api_key) # type: ignore
             next_run = next_run + timedelta(minutes=5)
             info(f"Next weather check: {next_run}")
             pause.until(next_run)
-
-        toggle_backlight(True)
 
 
 def get_daytime(date: datetime, current_location: dict, daytime_dir_path: str):
@@ -150,6 +150,11 @@ def get_now():
     return datetime.now(get_timezone())
 
 def toggle_backlight(turn_on: bool):
+    global BACKLIGHT_IS_ON
+    if BACKLIGHT_IS_ON == turn_on:
+        info("Backlight is already " + ("ON" if BACKLIGHT_IS_ON else "OFF"))
+        return
+
     hid_devices = hid.HidDeviceFilter(vendor_id=0x1EA7, product_id=0x6A62).get_devices()
     if not hid_devices:
         info("The keyboard is not found") # TODO warn
@@ -169,6 +174,8 @@ def toggle_backlight(turn_on: bool):
                     # report[target_usage] = bytes(request_data)
                     report[target_usage] = request_data
                     report.send()
+
+                    BACKLIGHT_IS_ON = turn_on
                     return
         except Exception as e:
             error(f"Failed to send output report, error is: {e}")

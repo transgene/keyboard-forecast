@@ -1,3 +1,4 @@
+import sys
 import threading
 import win32serviceutil
 
@@ -37,4 +38,10 @@ class KeyboardForecastService(win32serviceutil.ServiceFramework):
 
 
 if __name__ == "__main__":
-    win32serviceutil.HandleCommandLine(KeyboardForecastService)
+    # win32serviceutil.HandleCommandLine(KeyboardForecastService)
+    if len(sys.argv) == 1:
+        servicemanager.Initialize()
+        servicemanager.PrepareToHostSingle(KeyboardForecastService)
+        servicemanager.StartServiceCtrlDispatcher()
+    else:
+        win32serviceutil.HandleCommandLine(KeyboardForecastService)

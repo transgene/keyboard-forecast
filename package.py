@@ -59,7 +59,6 @@ PyInstaller.__main__.run(
         f"--workpath={PKG_DIR}/build",
         f"--distpath={PKG_DIR}",
         f"--specpath={PKG_DIR}",
-        # f"--runtime-tmpdir={os.path.expandvars("%LOCALAPPDATA%\\Programs\\keyboard-forecast")}",
         "--runtime-tmpdir=.",
         "--clean",
         "--noconfirm",
