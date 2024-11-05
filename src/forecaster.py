@@ -68,8 +68,8 @@ def main():
         # Waiting till sunrise
         sunrise = datetime.strptime(daytime["sunrise"], "%Y-%m-%dT%H:%M:%S%z") # TODO get the next sunrise (today or tomorrow's)
         sunrise = sunrise.astimezone(get_timezone(sunrise))
-        sunset = datetime.strptime(daytime["civil_twilight_evening_end"], "%Y-%m-%dT%H:%M:%S%z") 
-        # sunset = datetime.strptime(daytime["sunset"], "%Y-%m-%dT%H:%M:%S%z") 
+        # sunset = datetime.strptime(daytime["civil_twilight_evening_end"], "%Y-%m-%dT%H:%M:%S%z") 
+        sunset = datetime.strptime(daytime["sunset"], "%Y-%m-%dT%H:%M:%S%z") 
         sunset = sunset.astimezone(get_timezone(sunset))
         now = get_now()
         if now < sunrise:
