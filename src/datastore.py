@@ -60,6 +60,19 @@ def get_daytime(date: datetime.date) -> dict[str, str]:
     return daytime_json
 
 
+def get_weather_api_key() -> str:
+    return _WEATHER_API_KEY
+
+
+def get_weather_check_interval_minutes() -> int:
+    return _WEATHER_CHECK_INTERVAL
+
+
+def validate_config():
+    if os.getenv("WEATHER_API_KEY") is None:
+        raise Exception("Missing API key for weather checking (WEATHER_API_KEY)")
+
+
 def _download_location() -> dict:
     resp = requests.get("https://api.ip2location.io/")
     if resp.status_code != 200:
@@ -108,9 +121,17 @@ def _data_dir() -> Path:
         return PosixPath("~/.config/keyboard-forecast").expanduser()
 
 
+_WEATHER_API_KEY = ""
+_WEATHER_CHECK_INTERVAL = 5
+
+
 def _init():
     path = _data_dir()
     os.makedirs(path, exist_ok=True)
+
+    global _WEATHER_API_KEY, _WEATHER_CHECK_INTERVAL
+    _WEATHER_API_KEY = str(os.getenv("WEATHER_API_KEY"))
+    _WEATHER_CHECK_INTERVAL = int(os.getenv("WEATHER_CHECK_INTERVAL_MINUTES", "5"))
 
 
 _init()
