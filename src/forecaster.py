@@ -65,11 +65,10 @@ def _do_run(event_listener: EventListener):
 
 def _check_weather(cur_loc: location.Location):
     check_result = weather.is_dark(cur_loc)
-    if check_result is not None:
-        if check_result:
-            keyboard.toggle_backlight(True)
-        else:
-            keyboard.toggle_backlight(False)
+    if check_result:
+        keyboard.toggle_backlight(True)
+    else:
+        keyboard.toggle_backlight(False)
 
 
 def _sleep_until(event_listener: EventListener, until: datetime.datetime) -> bool:

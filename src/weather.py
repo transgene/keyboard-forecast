@@ -5,17 +5,16 @@ import forelogger as log
 import location
 
 
-def is_dark(cur_loc: location.Location) -> bool | None:
+def is_dark(cur_loc: location.Location) -> bool:
     return _check_openweathermap(cur_loc, datastore.get_weather_api_key())
 
 
-def _check_weatherapi(cur_loc: location.Location, api_key: str) -> bool | None:
+def _check_weatherapi(cur_loc: location.Location, api_key: str) -> bool:
     resp = requests.get(
         f"https://api.weatherapi.com/v1/current.json?key={api_key}&q={cur_loc.lat},{cur_loc.lng}&aqi=no"
     )
     if resp.status_code != 200:
-        log.error(f"Failed to get weather data. Error is {resp.status_code} - '{resp.text}'")
-        return
+        raise Exception(f"Failed to get weather data. Error is {resp.status_code} - '{resp.text}'")
 
     weather = resp.json()["current"]
     log.info(f"Weather forecast: {weather}")
@@ -29,22 +28,17 @@ def _check_weatherapi(cur_loc: location.Location, api_key: str) -> bool | None:
     return cloud_pct >= 70 or condition_code in conditions
 
 
-def _check_openweathermap(cur_loc: location.Location, api_key: str) -> bool | None:
+def _check_openweathermap(cur_loc: location.Location, api_key: str) -> bool:
     resp = requests.get(
         f"https://api.openweathermap.org/data/2.5/weather?units=metric&lat={cur_loc.lat}&lon={cur_loc.lng}&appid={api_key}"
     )
     if resp.status_code != 200:
-        log.error(f"Failed to get weather data. Error is {resp.status_code} - '{resp.text}'")
-        return
+        raise Exception(f"Failed to get weather data. Error is {resp.status_code} - '{resp.text}'")
 
     forecast = resp.json()
     log.info(f"Weather forecast: {forecast}")
 
     condition_code = forecast["weather"][0]["id"]
-    cloud_pct = forecast["clouds"]["all"]
-    if _openweathermap_clear(condition_code) or cloud_pct < 70:
-        return False
-
     if (
         _openweathermap_foggy(condition_code)
         or _openweathermap_snowy(condition_code)
@@ -53,9 +47,8 @@ def _check_openweathermap(cur_loc: location.Location, api_key: str) -> bool | No
     ):
         return True
 
-
-def _openweathermap_clear(condition_id: int) -> bool:
-    return condition_id == 800
+    cloud_pct = forecast["clouds"]["all"]
+    return cloud_pct >= 70
 
 
 def _openweathermap_foggy(condition_id: int) -> bool:
